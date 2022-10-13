@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import * as Animatable from 'react-native-animatable'
 import { useSelector, useDispatch } from "react-redux";
 import { FlatList, StyleSheet, Text, View, Button, Modal } from "react-native";
 import { Rating, Input } from "react-native-elements";
@@ -38,20 +38,20 @@ const CampsiteInfoScreen = ({ route }) => {
             <View style={styles.commentItem}>
                 <Text style={{ fontSize: 14 }}>{item.text}</Text>
                 {/* <Text style={{ fontSize: 12 }}>{item.rating} Stars</Text> */}
-                <Rating 
-                    startingValue={item.rating} 
-                    imageSize={10} 
-                    style={{alignItems: 'flex-start', paddingVertical: '2%'}} 
-                    readonly 
-                /> 
+                <Rating
+                    startingValue={item.rating}
+                    imageSize={10}
+                    style={{ alignItems: 'flex-start', paddingVertical: '2%' }}
+                    readonly
+                />
                 <Text style={{ fontSize: 12 }}>{`-- ${item.author}, ${item.date}`}</Text>
             </View>
         )
     }
 
     return (
-        <>
-            <FlatList 
+        <Animatable.View animation='fadeInUp' duration={2000} delay={1000}>
+            <FlatList
                 data={comments.commentsArray.filter(
                     (comment) => comment.campsiteId === campsite.id
                 )}
@@ -63,8 +63,8 @@ const CampsiteInfoScreen = ({ route }) => {
                 }}
                 ListHeaderComponent={
                     <>
-                        <RenderCampsite 
-                            campsite={campsite} 
+                        <RenderCampsite
+                            campsite={campsite}
                             isFavorite={favorites.includes(campsite.id)}
                             markFavorite={() => dispatch(toggleFavorite(campsite.id))}
                             onShowModal={() => setShowModal(!showModal)}
@@ -80,21 +80,21 @@ const CampsiteInfoScreen = ({ route }) => {
                 onRequestClose={() => setShowModal(!showModal)}
             >
                 <View style={styles.modal}>
-                    <Rating 
-                        showRating 
+                    <Rating
+                        showRating
                         startingValue={rating}
                         imageSize={40}
                         onFinishRating={() => setRating(rating)}
-                        style={{paddingVertical: 50}}
+                        style={{ paddingVertical: 50 }}
                     />
-                    <Input 
+                    <Input
                         value={author}
-                        placeholder="Author"    
+                        placeholder="Author"
                         leftIcon={{ type: 'font-awesome', name: 'user-o' }}
                         leftIconContainerStyle={{ paddingRight: 10 }}
                         onChangeText={(text) => setAuthor(text)}
                     />
-                    <Input 
+                    <Input
                         value={text}
                         placeholder="Comment"
                         leftIcon={{ type: 'font-awesome', name: 'comment-o' }}
@@ -102,27 +102,27 @@ const CampsiteInfoScreen = ({ route }) => {
                         onChangeText={(content) => setText(content)}
                     />
                     <View style={{ margin: 10 }}>
-                        <Button 
-                            onPress={() => { 
+                        <Button
+                            onPress={() => {
                                 handleSubmit()
-                                resetForm() 
+                                resetForm()
                             }}
                             title="Submit"
                             color='#5637DD'
                         />
                     </View>
-                    <View style={{margin: 10}}>
-                        <Button 
-                            onPress={() => setShowModal(!showModal)} 
-                            color='#808080' 
+                    <View style={{ margin: 10 }}>
+                        <Button
+                            onPress={() => setShowModal(!showModal)}
+                            color='#808080'
                             title='Cancel'
                         />
                     </View>
                 </View>
             </Modal>
-        </>
+        </Animatable.View>
     );
-}  
+}
 
 const styles = StyleSheet.create({
     commentsTitle: {
