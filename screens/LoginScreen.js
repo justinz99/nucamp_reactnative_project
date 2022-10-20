@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { View, Button, StyleSheet } from "react-native";
-import { CheckBox, Input } from "react-native-elements";
-import * as SecureStore from "expo-secure-store";
+import React, { useEffect, useState } from "react"
+import { View, Button, StyleSheet } from "react-native"
+import { CheckBox, Input } from "react-native-elements"
+import * as SecureStore from "expo-secure-store"
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('')
