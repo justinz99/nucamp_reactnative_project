@@ -4,7 +4,7 @@ import { Platform, View, StyleSheet, Text, Image, Alert, ToastAndroid } from "re
 import { Icon } from "react-native-elements";
 import Constants from "expo-constants";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createDrawerNavigator, DrawerContentScrollView,DrawerItemList } from "@react-navigation/drawer";
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import { fetchPartners } from '../features/partners/partnersSlice'
 import { fetchCampsites } from '../features/campsites/campsitesSlice'
 import { fetchComments } from '../features/comments/commentsSlice'
@@ -93,7 +93,7 @@ const ContactNavigator = () => {
             <Stack.Screen
                 name='Contact'
                 component={ContactScreen}
-                options={({navigation}) => ({
+                options={({ navigation }) => ({
                     title: 'Contact Us',
                     headerLeft: () => (
                         <Icon
@@ -140,7 +140,7 @@ const ReservationNavigator = () => {
             <Stack.Screen
                 name='Reservation'
                 component={ReservationScreen}
-                options={({navigation}) => ({
+                options={({ navigation }) => ({
                     title: 'Reservation Search',
                     headerLeft: () => (
                         <Icon
@@ -164,7 +164,7 @@ const FavoritesNavigator = () => {
             <Stack.Screen
                 name='Favorites'
                 component={FavoritesScreen}
-                options={({navigation}) => ({
+                options={({ navigation }) => ({
                     title: 'Favorite Campsites',
                     headerLeft: () => (
                         <Icon
@@ -188,15 +188,15 @@ const LoginNavigator = () => {
             <Stack.Screen
                 name='Login'
                 component={LoginScreen}
-                options={({navigation, route}) => ({
+                options={({ navigation, route }) => ({
                     headerTitle: getFocusedRouteNameFromRoute(route),
                     headerLeft: () => (
                         <Icon
                             name={
                                 getFocusedRouteNameFromRoute(route) === 'Register'
-                                ?
+                                    ?
                                     'user-plus'
-                                :   'sign-in'
+                                    : 'sign-in'
                             }
                             type="font-awesome"
                             iconStyle={styles.stackIcon}
@@ -212,14 +212,14 @@ const LoginNavigator = () => {
 const CustomDrawerContent = (props) => (
     <DrawerContentScrollView {...props}>
         <View style={styles.drawerHeader}>
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
                 <Image source={logo} style={styles.drawerImage} />
             </View>
-            <View style={{flex: 2}}>
+            <View style={{ flex: 2 }}>
                 <Text style={styles.drawerHeaderText}>Nucamp</Text>
             </View>
         </View>
-        <DrawerItemList {...props} labelStyle={{fontWeight: 'bold'}} /> 
+        <DrawerItemList {...props} labelStyle={{ fontWeight: 'bold' }} />
     </DrawerContentScrollView>
 )
 
@@ -233,25 +233,27 @@ const Main = () => {
         dispatch(fetchPromotions());
     }, [dispatch]);
 
-    useEffect(() => {
-        NetInfo.fetch().then((connectionInfo) => {
-            Platform.OS === 'ios'
+    const showNetInfo = async () => {
+        const connectionInfo = await NetInfo.fetch()
+        Platform.OS === 'ios'
             ?
-                Alert.alert('Initial Network Connectivity Type: ', connectionInfo.type)
-            :   ToastAndroid.show('Initial Network Connectivity Type: ' + connectionInfo.type, ToastAndroid.LONG)
-        })
+            Alert.alert('Initial Network Connectivity Type: ', connectionInfo.type)
+            : ToastAndroid.show('Initial Network Connectivity Type: ' + connectionInfo.type, ToastAndroid.LONG)
 
-        const unsubscribeNetInfo = NetInfo.addEventListener(
-            (connectionInfo) => {
-                handleConnectivityChange(connectionInfo)
-            }
-        )
-        return unsubscribeNetInfo
+        // const unsubscribeNetInfo = NetInfo.addEventListener(
+        //     (connectionInfo) => {
+        //         handleConnectivityChange(connectionInfo)
+        //     }
+        // )
+    }
+
+    useEffect(() => {
+        showNetInfo()
     }, [])
 
     const handleConnectivityChange = (connectionInfo) => {
         let connectionMsg = 'You are now connected to an active network.'
-        switch(connectionInfo.type) {
+        switch (connectionInfo.type) {
             case 'none':
                 connectionMsg = 'No network connection is active.'
                 break;
@@ -267,9 +269,9 @@ const Main = () => {
             // no default case because we covered all cases
         }
         Platform.OS === 'ios'
-        ?
+            ?
             Alert.alert('Connection change: ', connectionMsg)
-        :   ToastAndroid.show(connectionMsg, ToastAndroid.LONG)
+            : ToastAndroid.show(connectionMsg, ToastAndroid.LONG)
     }
 
     return (
@@ -350,9 +352,9 @@ const Main = () => {
                         title: 'Contact Us',
                         drawerIcon: ({ color }) => (
                             <Icon name='address-card' type='font-awesome' size={24} iconStle={{ width: 24 }} color={color} />
-                            )
-                        }}
-                />    
+                        )
+                    }}
+                />
             </Drawer.Navigator>
         </View>
     )

@@ -4,6 +4,8 @@ import { CheckBox, Input, Button, Icon } from "react-native-elements"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import * as SecureStore from "expo-secure-store"
 import * as ImagePicker from 'expo-image-picker'
+import * as ImageManipulator from 'expo-image-manipulator'
+import * as MediaLibrary from 'expo-media-library'
 import { baseUrl } from '../shared/baseUrl'
 import logo from '../assets/images/logo.png'
 
@@ -18,7 +20,7 @@ function LoginTab({ navigation }) {
         console.log('remember: ' + remember)
         if (remember) {
             SecureStore.setItemAsync(
-                'userinfo', 
+                'userinfo',
                 JSON.stringify({
                     username,
                     password
@@ -42,21 +44,21 @@ function LoginTab({ navigation }) {
 
     return (
         <View style={styles.container} >
-            <Input 
+            <Input
                 placeholder="username"
-                leftIcon= {{ type: 'font-awesome', name: 'user-o'}}
+                leftIcon={{ type: 'font-awesome', name: 'user-o' }}
                 onChangeText={text => setUsername(text)}
                 value={username}
                 containerStyle={styles.formInput}
                 leftIconContainerStyle={styles.formIcon}
             />
-            <Input 
+            <Input
                 placeholder="password"
-                leftIcon= {{ type: 'font-awesome', name: 'key'}}
+                leftIcon={{ type: 'font-awesome', name: 'key' }}
                 onChangeText={text => setPassword(text)}
                 value={password}
                 containerStyle={styles.formInput}
-                leftIconContainerStyle={styles.formIcon }
+                leftIconContainerStyle={styles.formIcon}
             />
             <CheckBox
                 title='remember me'
@@ -66,35 +68,35 @@ function LoginTab({ navigation }) {
                 containerStyle={styles.formButton}
             />
             <View style={styles.formButton}>
-                <Button 
-                    onPress={() => handleLogin()}    
+                <Button
+                    onPress={() => handleLogin()}
                     title='login'
                     color='#5637dd'
                     icon={
-                        <Icon  
+                        <Icon
                             name='sign-in'
                             type='font-awesome'
                             color='#fff'
-                            iconStyle={{ marginRight: 10}}
+                            iconStyle={{ marginRight: 10 }}
                         />
                     }
-                    buttonStyle={{ backgroundColor: '#5637dd'}}
+                    buttonStyle={{ backgroundColor: '#5637dd' }}
                 />
             </View>
             <View style={styles.formButton}>
-                <Button 
-                    onPress={() => navigation.navigate('Register')}    
+                <Button
+                    onPress={() => navigation.navigate('Register')}
                     title='register'
                     type='clear'
                     icon={
-                        <Icon  
+                        <Icon
                             name='user-plus'
                             type='font-awesome'
                             color='blue'
-                            iconStyle={{ marginRight: 10}}
+                            iconStyle={{ marginRight: 10 }}
                         />
                     }
-                    titleStyle={{ color: 'blue'}}
+                    titleStyle={{ color: 'blue' }}
                 />
             </View>
         </View>
@@ -109,7 +111,7 @@ function RegisterTab() {
     const [email, setEmail] = useState('')
     const [remember, setRemember] = useState(false)
     const [imageUrl, setImageUrl] = useState(baseUrl + 'images/logo.png')
-    
+
     const handleRegister = () => {
         const userInfo = {
             username,
@@ -122,7 +124,7 @@ function RegisterTab() {
         console.log(JSON.stringify(userInfo))
         if (remember) {
             SecureStore.setItemAsync(
-                'userinfo', 
+                'userinfo',
                 JSON.stringify({
                     username,
                     password
@@ -134,17 +136,37 @@ function RegisterTab() {
     }
 
     const getImageFromCamera = async () => {
-        const cameraPermission = 
-            await ImagePicker.requestCameraPermissionsAsync()
+        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync()
         if (cameraPermission.status === 'granted') {
             const capturedImage = await ImagePicker.launchCameraAsync({
                 allowsEditing: true,
-                aspect:[1, 1]
+                aspect: [1, 1]
             })
-            if (!capturedImage.cancelled)
+            if (!capturedImage.cancelled) {
                 console.log(capturedImage)
-                setImageUrl(capturedImage.uri)
+                MediaLibrary.saveToLibraryAsync(capturedImage.uri)
+                processImage(capturedImage.uri)
+            }
+        }
+    }
 
+    const processImage = async (imgUri) => {
+        const processedImage = await ImageManipulator.manipulateAsync(imgUri, [{ resize: { height: 400, width: 400 } }], { format: 'png' })
+        console.log(processedImage)
+        setImageUrl(processedImage.uri)
+    }
+
+    const getImageFromGallery = async () => {
+        const mediaLibraryPermission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+        if (mediaLibraryPermission.status === 'granted') {
+            const capturedImage = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                aspect: [1, 1]
+            })
+            if (!capturedImage.cancelled) {
+                console.log(capturedImage)
+                processImage(capturedImage.uri)
+            }
         }
     }
 
@@ -152,79 +174,80 @@ function RegisterTab() {
         <ScrollView>
             <View style={styles.container}>
                 <View style={styles.imageContainer}>
-                    <Image 
-                        source={{uri: imageUrl}}
+                    <Image
+                        source={{ uri: imageUrl }}
                         locadingIndicatorSource={logo}
                         style={styles.image}
                     />
                     <Button title='Camera' onPress={getImageFromCamera} />
+                    <Button title='Gallery' onPress={getImageFromGallery} />
                 </View>
             </View>
-                    <View style={styles.container} >
-            <Input 
-                placeholder="username"
-                leftIcon= {{ type: 'font-awesome', name: 'user-o'}}
-                onChangeText={text => setUsername(text)}
-                value={username}
-                containerStyle={styles.formInput}
-                leftIconContainerStyle={styles.formIcon}
-            />
-            <Input 
-                placeholder="password"
-                leftIcon= {{ type: 'font-awesome', name: 'key'}}
-                onChangeText={text => setPassword(text)}
-                value={password}
-                containerStyle={styles.formInput}
-                leftIconContainerStyle={styles.formIcon }
-            />
-            <Input 
-                placeholder="first name"
-                leftIcon= {{ type: 'font-awesome', name: 'user-o'}}
-                onChangeText={text => setFirstName(text)}
-                value={firstName}
-                containerStyle={styles.formInput}
-                leftIconContainerStyle={styles.formIcon }
-            />
-            <Input 
-                placeholder="last name"
-                leftIcon= {{ type: 'font-awesome', name: 'user-o'}}
-                onChangeText={text => setLastName(text)}
-                value={lastName}
-                containerStyle={styles.formInput}
-                leftIconContainerStyle={styles.formIcon }
-            />
-            <Input 
-                placeholder="email"
-                leftIcon= {{ type: 'font-awesome', name: 'envelope-o'}}
-                onChangeText={text => setEmail(text)}
-                value={email}
-                containerStyle={styles.formInput}
-                leftIconContainerStyle={styles.formIcon }
-            />
-            <CheckBox
-                title='remember me'
-                center
-                checked={remember}
-                onPress={() => setRemember(!remember)}
-                containerStyle={styles.formButton}
-            />
-            <View style={styles.formButton}>
-                <Button 
-                    onPress={() => handleRegister()}    
-                    title='register'
-                    color='#5637dd'
-                    icon={
-                        <Icon  
-                            name='user-plus'
-                            type='font-awesome'
-                            color='#fff'
-                            iconStyle={{ marginRight: 10}}
-                        />
-                    }
-                    buttonStyle={{ backgroundColor: '#5637dd'}}
+            <View style={styles.container} >
+                <Input
+                    placeholder="username"
+                    leftIcon={{ type: 'font-awesome', name: 'user-o' }}
+                    onChangeText={text => setUsername(text)}
+                    value={username}
+                    containerStyle={styles.formInput}
+                    leftIconContainerStyle={styles.formIcon}
                 />
+                <Input
+                    placeholder="password"
+                    leftIcon={{ type: 'font-awesome', name: 'key' }}
+                    onChangeText={text => setPassword(text)}
+                    value={password}
+                    containerStyle={styles.formInput}
+                    leftIconContainerStyle={styles.formIcon}
+                />
+                <Input
+                    placeholder="first name"
+                    leftIcon={{ type: 'font-awesome', name: 'user-o' }}
+                    onChangeText={text => setFirstName(text)}
+                    value={firstName}
+                    containerStyle={styles.formInput}
+                    leftIconContainerStyle={styles.formIcon}
+                />
+                <Input
+                    placeholder="last name"
+                    leftIcon={{ type: 'font-awesome', name: 'user-o' }}
+                    onChangeText={text => setLastName(text)}
+                    value={lastName}
+                    containerStyle={styles.formInput}
+                    leftIconContainerStyle={styles.formIcon}
+                />
+                <Input
+                    placeholder="email"
+                    leftIcon={{ type: 'font-awesome', name: 'envelope-o' }}
+                    onChangeText={text => setEmail(text)}
+                    value={email}
+                    containerStyle={styles.formInput}
+                    leftIconContainerStyle={styles.formIcon}
+                />
+                <CheckBox
+                    title='remember me'
+                    center
+                    checked={remember}
+                    onPress={() => setRemember(!remember)}
+                    containerStyle={styles.formButton}
+                />
+                <View style={styles.formButton}>
+                    <Button
+                        onPress={() => handleRegister()}
+                        title='register'
+                        color='#5637dd'
+                        icon={
+                            <Icon
+                                name='user-plus'
+                                type='font-awesome'
+                                color='#fff'
+                                iconStyle={{ marginRight: 10 }}
+                            />
+                        }
+                        buttonStyle={{ backgroundColor: '#5637dd' }}
+                    />
+                </View>
             </View>
-        </View>
         </ScrollView>
     )
 }
@@ -293,7 +316,7 @@ const styles = StyleSheet.create({
         backgroundColor: null
     },
     formButton: {
-        margin: 20, 
+        margin: 20,
         marginRight: 40,
         marginLeft: 40
     },
@@ -306,6 +329,6 @@ const styles = StyleSheet.create({
     },
     image: {
         width: 60,
-        height: 60 
+        height: 60
     }
 })
